@@ -9,32 +9,136 @@ const menuClose = document.getElementById('menuClose');
 
 if (menuToggle && mobileMenu && menuClose) {
     menuToggle.addEventListener('click', function() {
-        mobileMenu.style.display = 'block';
-        setTimeout(() => {
-            mobileMenu.classList.add('active');
-        }, 10);
+        mobileMenu.classList.add('active');
         document.body.style.overflow = 'hidden';
     });
 
     menuClose.addEventListener('click', function() {
         mobileMenu.classList.remove('active');
-        setTimeout(() => {
-            mobileMenu.style.display = 'none';
-            document.body.style.overflow = '';
-        }, 300);
+        document.body.style.overflow = '';
     });
 
-    // Close menu when clicking on a link
-    mobileMenu.querySelectorAll('a').forEach(link => {
+    // Close menu when clicking a direct nav link (HOME, INTRODUCTION, CONTACT)
+    mobileMenu.querySelectorAll('.mobile-nav-list > li > a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (this.parentElement.classList.contains('mobile-has-sub')) return;
+            mobileMenu.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    });
+    // Close menu when clicking any submenu link
+    mobileMenu.querySelectorAll('.mobile-sub a').forEach(link => {
         link.addEventListener('click', function() {
             mobileMenu.classList.remove('active');
-            setTimeout(() => {
-                mobileMenu.style.display = 'none';
-                document.body.style.overflow = '';
-            }, 300);
+            document.body.style.overflow = '';
         });
     });
 }
+
+// Mobile submenu expand/collapse (+ / −)
+document.querySelectorAll('.mobile-has-sub').forEach(function(item) {
+    const link = item.querySelector(':scope > a');
+    if (!link) return;
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.mobile-has-sub.open').forEach(function(other) {
+            if (other !== item) other.classList.remove('open');
+        });
+        if (isOpen) {
+            item.classList.remove('open');
+        } else {
+            item.classList.add('open');
+        }
+    });
+});
+
+// Megamenu: click to open on touch devices (keep hover for desktop)
+(function() {
+    const nav = document.querySelector('.main-nav');
+    if (!nav) return;
+    const dropdowns = nav.querySelectorAll('.has-dropdown');
+    let touchMode = false;
+
+    function closeAll() {
+        dropdowns.forEach(function(d) { d.classList.remove('megamenu-open'); });
+    }
+
+    dropdowns.forEach(function(li) {
+        const link = li.querySelector(':scope > a');
+        if (!link) return;
+        link.addEventListener('click', function(e) {
+            if (window.matchMedia('(min-width: 969px)').matches) {
+                e.preventDefault();
+                touchMode = true;
+                const open = li.classList.contains('megamenu-open');
+                closeAll();
+                if (!open) li.classList.add('megamenu-open');
+            }
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!nav.contains(e.target)) closeAll();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeAll();
+    });
+})();
+
+// State Units megamenu: show different panel per zone (East = Office Bearers, others = zone menu)
+(function() {
+    const stateUnitsLi = document.querySelector('.has-dropdown.has-megamenu');
+    if (!stateUnitsLi) return;
+    const zonesColumn = stateUnitsLi.querySelector('.megamenu-column-zones');
+    const panelsColumn = stateUnitsLi.querySelector('.megamenu-column-panels');
+    const zoneItems = stateUnitsLi.querySelectorAll('.megamenu-zones li[data-zone]');
+    const panels = stateUnitsLi.querySelectorAll('.megamenu-panel[data-panel]');
+    let hidePanelsTimer = null;
+    const delay = 180;
+
+    function showPanel(zone) {
+        panels.forEach(function(p) {
+            p.classList.toggle('is-visible', p.getAttribute('data-panel') === zone);
+        });
+    }
+
+    function hideAllPanels() {
+        panels.forEach(function(p) { p.classList.remove('is-visible'); });
+    }
+
+    function scheduleHide() {
+        if (hidePanelsTimer) clearTimeout(hidePanelsTimer);
+        hidePanelsTimer = setTimeout(hideAllPanels, delay);
+    }
+
+    function cancelHide() {
+        if (hidePanelsTimer) {
+            clearTimeout(hidePanelsTimer);
+            hidePanelsTimer = null;
+        }
+    }
+
+    zoneItems.forEach(function(li) {
+        li.addEventListener('mouseenter', function() {
+            cancelHide();
+            showPanel(li.getAttribute('data-zone'));
+        });
+    });
+
+    if (zonesColumn) {
+        zonesColumn.addEventListener('mouseleave', function() {
+            scheduleHide();
+        });
+    }
+
+    if (panelsColumn) {
+        panelsColumn.addEventListener('mouseenter', cancelHide);
+        panelsColumn.addEventListener('mouseleave', function() {
+            scheduleHide();
+        });
+    }
+})();
 
 // Smooth scroll for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -169,8 +273,8 @@ let currentSlideIndex = 0;
 let slideInterval;
 
 function showSlide(index) {
-    const slides = document.querySelectorAll('.slide');
-    const indicators = document.querySelectorAll('.indicator');
+    const slides = document.querySelectorAll('.news-highlights .slideshow-container .slide');
+    const indicators = document.querySelectorAll('.news-highlights .slide-indicators .indicator');
     
     if (!slides.length) return;
     
@@ -210,8 +314,9 @@ function resetSlideInterval() {
     autoSlide();
 }
 
-// Initialize slideshow
-if (document.querySelector('.slideshow-container')) {
+// Initialize "In Focus" slideshow (news-highlights section only)
+const slideshowContainer = document.querySelector('.news-highlights .slideshow-container');
+if (slideshowContainer) {
     showSlide(currentSlideIndex);
     autoSlide();
 }
@@ -221,7 +326,7 @@ if (document.querySelector('.slideshow-container')) {
 // ============================================
 const lightboxImages = [
     {
-        src: 'images/1766290219_G8IgXNpb0AAF9GH.jpg',
+        src: 'images/1766290219_G8IgXNpb0AAF9GH (1).jpg',
         caption: 'All India Media Meet'
     },
     {
@@ -241,7 +346,7 @@ const lightboxImages = [
         caption: 'Annual Convention'
     },
     {
-        src: 'images/1766290219_G8IgXNpb0AAF9GH.jpg',
+        src: 'images/1766290219_G8IgXNpb0AAF9GH (1).jpg',
         caption: 'Regional Workshop'
     }
 ];
@@ -311,16 +416,19 @@ document.getElementById('lightbox')?.addEventListener('click', function(e) {
         closeLightbox();
     }
 });
-const slides = document.querySelectorAll('.slide');
-const dots = document.querySelectorAll('.dot');
-let currentSlide = 0;
-
-setInterval(() => {
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
-
-    currentSlide = (currentSlide + 1) % slides.length;
-
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
-}, 4000);
+// News slider (photo strip) – only target slides inside .news-slider
+const newsSlider = document.querySelector('.news-slider .slider-wrapper');
+if (newsSlider) {
+    const slides = newsSlider.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.news-slider .dot');
+    let newsSlideIndex = 0;
+    if (slides.length && dots.length) {
+        setInterval(() => {
+            slides[newsSlideIndex].classList.remove('active');
+            dots[newsSlideIndex].classList.remove('active');
+            newsSlideIndex = (newsSlideIndex + 1) % slides.length;
+            slides[newsSlideIndex].classList.add('active');
+            dots[newsSlideIndex].classList.add('active');
+        }, 4000);
+    }
+}

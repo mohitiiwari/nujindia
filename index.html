@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,26 +12,7 @@
 
 </head>
 <body>
-    <!-- Top Bar -->
-    <!-- <div class="top-bar">
-        <div class="top-bar-content">
-            <div class="top-bar-left">
-                NATIONAL UNION OF JOURNALISTS (INDIA)
-            </div>
-            <div class="top-bar-right">
-                <a href="publications.php" class="top-bar-link">
-                    <span>📚</span> Publications
-                </a>
-                <a href="#" class="top-bar-link">
-                    <span>👤</span> Join Us
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="affiliation">
-        AFFILIATED TO INTERNATIONAL FEDERATION OF JOURNALISTS (IFJ), BRUSSELS, BELGIUM
-    </div> -->
+    <!-- COMPONENT: Top Bar -->
     <div class="top-bar">
     <div class="top-bar-content">
 
@@ -56,9 +37,12 @@
     </div>
 </div>
 
+    <!-- COMPONENT: Affiliation Strip -->
+    <div class="affiliation">
+        AFFILIATED TO INTERNATIONAL FEDERATION OF JOURNALISTS (IFJ), BRUSSELS, BELGIUM
+    </div>
 
-
-    <!-- Header -->
+    <!-- COMPONENT: Header -->
     <header class="header" id="header">
         <div class="header-content">
             <div class="logo">
@@ -72,40 +56,232 @@
             <button class="mobile-menu-toggle" id="menuToggle">☰</button>
         </div>
     </header>
-    <section class="organization-strip">
-    <div class="org-container">
-        <h1></h1>
-        <p></p>
-        <nav>
-                <ul>
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="about_us.php">About Us</a></li>
-                    <li><a href="#">Office Bearers</a></li>
-                    <li><a href="#">News & Events</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li><a href="#" class="cta-button">Become a Member</a></li>
+    <!-- COMPONENT: Navigation (Megamenu) -->
+    <section class="organization-strip nav-strip">
+        <div class="org-container">
+            <nav class="main-nav" aria-label="Main navigation">
+                <ul class="nav-list">
+                    <li><a href="index.php">HOME</a></li>
+                    <li><a href="about_us.php">INTRODUCTION</a></li>
+                    <li class="has-dropdown">
+                        <a href="office_bearers.php">OFFICE BEARERS <span class="nav-icon" aria-hidden="true">+</span></a>
+                        <div class="megamenu">
+                            <div class="megamenu-inner">
+                                <div class="megamenu-column">
+                                    <ul class="megamenu-links">
+                                        <li><a href="president.php">PRESIDENT</a></li>
+                                        <li><a href="sec_gen.php">SECRETARY GENERAL</a></li>
+                                        <li><a href="treasurer.php">TREASURER</a></li>
+                                        <li><a href="vice_president.php">VICE PRESIDENT</a></li>
+                                        <li><a href="secretaries.php">SECRETARIES</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="has-dropdown has-megamenu">
+                        <a href="state_units.php">STATE UNITS <span class="nav-icon" aria-hidden="true">+</span></a>
+                        <div class="megamenu megamenu-two-cols">
+                            <div class="megamenu-inner">
+                                <div class="megamenu-column megamenu-column-zones">
+                                    <ul class="megamenu-links megamenu-zones">
+                                        <li data-zone="east"><a href="zone_east.php">EAST ZONE <span class="nav-icon">+</span></a></li>
+                                        <li data-zone="west"><a href="zone_west.php">WEST ZONE <span class="nav-icon">+</span></a></li>
+                                        <li data-zone="central"><a href="zone_central.php">CENTRAL ZONE <span class="nav-icon">+</span></a></li>
+                                        <li data-zone="south"><a href="zone_south.php">SOUTH ZONE <span class="nav-icon">+</span></a></li>
+                                        <li data-zone="north"><a href="zone_north.php">NORTH ZONE <span class="nav-icon">+</span></a></li>
+                                        <li data-zone="delhi"><a href="zone_delhi.php">DELHI ZONE <span class="nav-icon">+</span></a></li>
+                                        <li data-zone="northeast"><a href="zone_northeast.php">NORTH EAST ZONE <span class="nav-icon">+</span></a></li>
+                                    </ul>
+                                </div>
+                                <div class="megamenu-column megamenu-column-panels">
+                                    <div class="megamenu-panel megamenu-panel-east" data-panel="east">
+                                        <ul class="megamenu-links megamenu-office-bearers">
+                                            <li><a href="president.php">PRESIDENT</a></li>
+                                            <li><a href="sec_gen.php">SECRETARY GENERAL</a></li>
+                                            <li><a href="treasurer.php">TREASURER</a></li>
+                                            <li><a href="vice_president.php">VICE PRESIDENT</a></li>
+                                            <li><a href="secretaries.php">SECRETARIES</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="megamenu-panel megamenu-panel-west" data-panel="west">
+                                        <ul class="megamenu-links">
+                                            <li><a href="zone_west.php#maharashtra">MAHARASHTRA</a></li>
+                                            <li><a href="zone_west.php#gujarat">GUJARAT</a></li>
+                                            <li><a href="zone_west.php#goa">GOA</a></li>
+                                            <li><a href="zone_west.php#rajasthan">RAJASTHAN</a></li>
+                                            <li><a href="zone_west.php">VIEW ALL WEST ZONE →</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="megamenu-panel megamenu-panel-central" data-panel="central">
+                                        <ul class="megamenu-links">
+                                            <li><a href="zone_central.php#mp">MADHYA PRADESH</a></li>
+                                            <li><a href="zone_central.php#chhattisgarh">CHHATTISGARH</a></li>
+                                            <li><a href="zone_central.php#up">UTTAR PRADESH</a></li>
+                                            <li><a href="zone_central.php#uttarakhand">UTTARAKHAND</a></li>
+                                            <li><a href="zone_central.php">VIEW ALL CENTRAL ZONE →</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="megamenu-panel megamenu-panel-south" data-panel="south">
+                                        <ul class="megamenu-links">
+                                            <li><a href="zone_south.php#tamilnadu">TAMIL NADU</a></li>
+                                            <li><a href="zone_south.php#kerala">KERALA</a></li>
+                                            <li><a href="zone_south.php#karnataka">KARNATAKA</a></li>
+                                            <li><a href="zone_south.php#andhra">ANDHRA PRADESH</a></li>
+                                            <li><a href="zone_south.php#telangana">TELANGANA</a></li>
+                                            <li><a href="zone_south.php">VIEW ALL SOUTH ZONE →</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="megamenu-panel megamenu-panel-north" data-panel="north">
+                                        <ul class="megamenu-links">
+                                            <li><a href="zone_north.php#punjab">PUNJAB</a></li>
+                                            <li><a href="zone_north.php#haryana">HARYANA</a></li>
+                                            <li><a href="zone_north.php#himachal">HIMACHAL PRADESH</a></li>
+                                            <li><a href="zone_north.php#jk">JAMMU & KASHMIR</a></li>
+                                            <li><a href="zone_north.php">VIEW ALL NORTH ZONE →</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="megamenu-panel megamenu-panel-delhi" data-panel="delhi">
+                                        <ul class="megamenu-links">
+                                            <li><a href="zone_delhi.php#ncr">NCR UNITS</a></li>
+                                            <li><a href="zone_delhi.php#press">PRESS CLUBS</a></li>
+                                            <li><a href="zone_delhi.php#events">DELHI EVENTS</a></li>
+                                            <li><a href="zone_delhi.php">VIEW ALL DELHI ZONE →</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="megamenu-panel megamenu-panel-northeast" data-panel="northeast">
+                                        <ul class="megamenu-links">
+                                            <li><a href="zone_northeast.php#assam">ASSAM</a></li>
+                                            <li><a href="zone_northeast.php#meghalaya">MEGHALAYA</a></li>
+                                            <li><a href="zone_northeast.php#manipur">MANIPUR</a></li>
+                                            <li><a href="zone_northeast.php#nagaland">NAGALAND</a></li>
+                                            <li><a href="zone_northeast.php#tripura">TRIPURA</a></li>
+                                            <li><a href="zone_northeast.php">VIEW ALL NORTH EAST →</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="state_activities.php">STATE ACTIVITIES <span class="nav-icon" aria-hidden="true">+</span></a>
+                        <div class="megamenu">
+                            <div class="megamenu-inner">
+                                <div class="megamenu-column">
+                                    <ul class="megamenu-links">
+                                        <li><a href="state_activities.php#events">EVENTS</a></li>
+                                        <li><a href="state_activities.php#workshops">WORKSHOPS</a></li>
+                                        <li><a href="state_activities.php#conventions">CONVENTIONS</a></li>
+                                        <li><a href="state_activities.php#reports">ANNUAL REPORTS</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="nuj_school.php">NUJ SCHOOL <span class="nav-icon" aria-hidden="true">+</span></a>
+                        <div class="megamenu">
+                            <div class="megamenu-inner">
+                                <div class="megamenu-column">
+                                    <ul class="megamenu-links">
+                                        <li><a href="nuj_school.php#courses">COURSES</a></li>
+                                        <li><a href="nuj_school.php#training">TRAINING PROGRAMS</a></li>
+                                        <li><a href="nuj_school.php#ethics">JOURNALISM ETHICS</a></li>
+                                        <li><a href="nuj_school.php#enroll">ENROLL</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="jwf.php">JWF <span class="nav-icon" aria-hidden="true">+</span></a>
+                        <div class="megamenu">
+                            <div class="megamenu-inner">
+                                <div class="megamenu-column">
+                                    <ul class="megamenu-links">
+                                        <li><a href="jwf.php#about">ABOUT JWF</a></li>
+                                        <li><a href="jwf.php#members">MEMBERS</a></li>
+                                        <li><a href="jwf.php#activities">ACTIVITIES</a></li>
+                                        <li><a href="jwf.php#contact">CONTACT</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li><a href="contact.php">CONTACT</a></li>
                 </ul>
             </nav>
-    </div>
-</section>
+        </div>
+    </section>
 
-
-    <!-- Mobile Menu -->
+    <!-- COMPONENT: Mobile Menu (Megamenu style) -->
     <div class="mobile-menu" id="mobileMenu">
-        <button class="mobile-menu-close" id="menuClose">×</button>
-        <nav>
-            <ul>
-                <li><a href="index.php">Home</a></li>
-                <li><a href="about_us.php">About Us</a></li>
-                <li><a href="#">Office Bearers</a></li>
-                <li><a href="#">News & Events</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="#" class="cta-button">Become a Member</a></li>
+        <button class="mobile-menu-close" id="menuClose" aria-label="Close menu">×</button>
+        <nav class="mobile-nav" aria-label="Mobile navigation">
+            <ul class="mobile-nav-list">
+                <li><a href="index.php">HOME</a></li>
+                <li><a href="about_us.php">INTRODUCTION</a></li>
+                <li class="mobile-has-sub">
+                    <a href="office_bearers.php">OFFICE BEARERS <span class="mobile-toggle" aria-hidden="true">+</span></a>
+                    <ul class="mobile-sub">
+                        <li><a href="president.php">President</a></li>
+                        <li><a href="sec_gen.php">Secretary General</a></li>
+                        <li><a href="treasurer.php">Treasurer</a></li>
+                        <li><a href="vice_president.php">Vice President</a></li>
+                        <li><a href="secretaries.php">Secretaries</a></li>
+                    </ul>
+                </li>
+                <li class="mobile-has-sub">
+                    <a href="state_units.php">STATE UNITS <span class="mobile-toggle" aria-hidden="true">+</span></a>
+                    <ul class="mobile-sub">
+                        <li><a href="zone_east.php">East Zone</a></li>
+                        <li><a href="zone_west.php">West Zone</a></li>
+                        <li><a href="zone_central.php">Central Zone</a></li>
+                        <li><a href="zone_south.php">South Zone</a></li>
+                        <li><a href="zone_north.php">North Zone</a></li>
+                        <li><a href="zone_delhi.php">Delhi Zone</a></li>
+                        <li><a href="zone_northeast.php">North East Zone</a></li>
+                        <li class="mobile-sub-divider">Office Bearers</li>
+                        <li><a href="president.php">President</a></li>
+                        <li><a href="sec_gen.php">Secretary General</a></li>
+                        <li><a href="treasurer.php">Treasurer</a></li>
+                        <li><a href="vice_president.php">Vice President</a></li>
+                        <li><a href="secretaries.php">Secretaries</a></li>
+                    </ul>
+                </li>
+                <li class="mobile-has-sub">
+                    <a href="state_activities.php">STATE ACTIVITIES <span class="mobile-toggle" aria-hidden="true">+</span></a>
+                    <ul class="mobile-sub">
+                        <li><a href="state_activities.php#events">Events</a></li>
+                        <li><a href="state_activities.php#workshops">Workshops</a></li>
+                        <li><a href="state_activities.php#conventions">Conventions</a></li>
+                        <li><a href="state_activities.php#reports">Annual Reports</a></li>
+                    </ul>
+                </li>
+                <li class="mobile-has-sub">
+                    <a href="nuj_school.php">NUJ SCHOOL <span class="mobile-toggle" aria-hidden="true">+</span></a>
+                    <ul class="mobile-sub">
+                        <li><a href="nuj_school.php#courses">Courses</a></li>
+                        <li><a href="nuj_school.php#training">Training Programs</a></li>
+                        <li><a href="nuj_school.php#ethics">Journalism Ethics</a></li>
+                        <li><a href="nuj_school.php#enroll">Enroll</a></li>
+                    </ul>
+                </li>
+                <li class="mobile-has-sub">
+                    <a href="jwf.php">JWF <span class="mobile-toggle" aria-hidden="true">+</span></a>
+                    <ul class="mobile-sub">
+                        <li><a href="jwf.php#about">About JWF</a></li>
+                        <li><a href="jwf.php#members">Members</a></li>
+                        <li><a href="jwf.php#activities">Activities</a></li>
+                        <li><a href="jwf.php#contact">Contact</a></li>
+                    </ul>
+                </li>
+                <li><a href="contact.php">CONTACT</a></li>
             </ul>
         </nav>
     </div>
 
-    <!-- Hero Section -->
+    <!-- COMPONENT: Hero -->
     <section class="hero">
         <div class="hero-content">
             <h2>Defending Truth, Supporting Journalists</h2>
@@ -117,14 +293,27 @@
         </div>
     </section>
 
-    <!-- Leadership Section -->
-    <!-- <section class="leadership">
-        News & Photo Slider Section
-<section class="news-slider">
+    <!-- COMPONENT: News & Photo Slider -->
+    <section class="news-slider">
     <div class="news-slider-container">
 
-        LEFT: NEWS UPDATES -->
-       <!--  <div class="news-updates">
+        <!-- LEFT: PHOTO SLIDER -->
+        <div class="photo-slider">
+            <div class="slider-wrapper">
+                <img src="images/1766290219_G8IgXNpb0AAF9GH (1).jpg" class="slide active" alt="NUJ Event">
+                <img src="images/1766290098_WhatsApp_Image_2025-12-15_at_08_07_25_871f23f6.jpg" class="slide" alt="NUJ Meeting">
+                <img src="images/1769686732273_image.png" class="slide" alt="Press Conference">
+            </div>
+
+            <div class="slider-controls">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+
+        <!-- RIGHT: NEWS UPDATES -->
+        <div class="news-updates">
             <h2 class="section-title small">Latest News</h2>
 
             <ul class="news-list">
@@ -149,71 +338,11 @@
             <a href="#" class="view-all-news">View All News →</a>
         </div>
 
-     RIGHT: PHOTO SLIDER -->
-          <!--  <div class="photo-slider">
-            <div class="slider-wrapper">
-                <img src="images/1766290219_G8IgXNpb0AAF9GH.jpg" class="slide active" alt="NUJ Event">
-                <img src="images/1766290098_WhatsApp_Image_2025-12-15_at_08_07_25_871f23f6.jpg" class="slide" alt="NUJ Meeting">
-                <img src="images/1769686732273_image.png" class="slide" alt="Press Conference">
-            </div>
-
-            <div class="slider-controls">
-                <span class="dot active"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-            </div>
-        </div>
-
-    </div>
-</section> -->
-<section class="news-slider">
-    <div class="news-slider-container">
-
-        <!-- LEFT: PHOTO SLIDER -->
-        <div class="photo-slider">
-            <div class="slider-wrapper">
-                <img src="images/1766290219_G8IgXNpb0AAF9GH.jpg" class="slide active" alt="NUJ Event">
-                <img src="images/1766290098_WhatsApp_Image_2025-12-15_at_08_07_25_871f23f6.jpg" class="slide" alt="NUJ Meeting">
-                <img src="images/1769686732273_image.png" class="slide" alt="Press Conference">
-            </div>
-
-            <div class="slider-controls">
-                <span class="dot active"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-            </div>
-        </div>
-
-        <!-- RIGHT: NEWS UPDATES -->
-        <div class="news-updates">
-            <h2 class="section-title small">Latest News</h2>
-
-            <ul class="news-list">
-                <li>
-                    <span class="news-date"></span>
-                    <a href="#">NUJ demands strong action against attack on journalists in MP</a>
-                </li>
-                <li>
-                    <span class="news-date"></span>
-                    <a href="#">IFJ expresses solidarity with Indian journalists</a>
-                </li>
-                <li>
-                    <span class="news-date"></span>
-                    <a href="#">NUJ national executive meeting held in Delhi</a>
-                </li>
-                <li>
-                    <span class="news-date"></span>
-                    <a href="#">Press freedom concerns raised with authorities</a>
-                </li>
-            </ul>
-
-            <a href="#" class="view-all-news">View All News →</a>
-        </div>
-
     </div>
 </section>
 
-
+    <!-- COMPONENT: Leadership -->
+    <section class="leadership">
         <div class="leadership-content">
             <h2 class="section-title">Our Leadership</h2>
             <div class="leadership-grid">
@@ -232,19 +361,20 @@
                         <p>Secretary General</p>
                         <a href="sec_gen.php">View Profile →</a>
                     </div>
-                    <div class="leader-card">
-                    <img src="images/" alt="Treasurer" class="leader-image">
+                </div>
+                <div class="leader-card">
+                    <img src="images/pradeep_tiwari2.jpg" alt="Treasurer" class="leader-image">
                     <div class="leader-info">
                         <h3>Mohit Tiwari</h3>
                         <p>Treasurer</p>
-                        <a href="sec_gen.php">View Profile →</a>
+                        <a href="treasurer.php">View Profile →</a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- COMPONENT: Features -->
     <section class="features">
         <div class="features-content">
             <h2 class="section-title">What We Stand For</h2>
@@ -283,7 +413,7 @@
         </div>
     </section>
 
-     <!-- NEW: News & Highlights Section -->
+    <!-- COMPONENT: News & Highlights -->
     <section class="news-highlights">
         <div class="news-highlights-content">
             <div class="news-highlights-grid">
@@ -364,7 +494,7 @@
                     </div>
                     <div class="slideshow-container">
                         <div class="slide active">
-                            <img src="images/1766290219_G8IgXNpb0AAF9GH.jpg" alt="NUJ Event 1">
+                            <img src="images/1766290219_G8IgXNpb0AAF9GH (1).jpg" alt="NUJ Event 1">
                             <div class="slide-caption">
                                 <h3>National Journalists Convention 2025</h3>
                                 <p>Leaders from across India unite for press freedom</p>
@@ -425,7 +555,7 @@
         </div>
     </section>
 
-    <!-- Zones Section -->
+    <!-- COMPONENT: Zones -->
     <section class="zones">
         <div class="zones-content">
             <div class="zones-grid">
@@ -453,7 +583,7 @@
         </div>
     </section>
 
-    <!-- Content Section (Press Releases, Letters, Enquiry) -->
+    <!-- COMPONENT: Content (Press Releases, Letters, Enquiry) -->
     <section class="content-section">
         <div class="content-container">
             <div class="content-columns">
@@ -544,7 +674,7 @@
         </div>
     </section>
 
-    <!-- NEW: Media Gallery Section (Before Footer) -->
+    <!-- COMPONENT: Media Gallery -->
     <section class="media-gallery-section">
         <div class="media-gallery-content">
             <h2 class="section-title">Media Gallery</h2>
@@ -640,7 +770,7 @@
                     <div class="photo-grid">
                         <!-- Photo Item 1 -->
                         <div class="photo-item" onclick="openLightbox(0)">
-                            <img src="images/1766290219_G8IgXNpb0AAF9GH.jpg" alt="Media Clipping 1">
+                            <img src="images/1766290219_G8IgXNpb0AAF9GH (1).jpg" alt="Media Clipping 1">
                             <div class="photo-overlay">
                                 <div class="overlay-icon">🔍</div>
                                 <div class="overlay-text">All India Media Meet</div>
@@ -685,7 +815,7 @@
 
                         <!-- Photo Item 6 -->
                         <div class="photo-item" onclick="openLightbox(5)">
-                            <img src="images/1766290219_G8IgXNpb0AAF9GH.jpg" alt="Media Clipping 6">
+                            <img src="images/1766290219_G8IgXNpb0AAF9GH (1).jpg" alt="Media Clipping 6">
                             <div class="photo-overlay">
                                 <div class="overlay-icon">🔍</div>
                                 <div class="overlay-text">Regional Workshop</div>
@@ -699,7 +829,7 @@
         </div>
     </section>
 
-    <!-- Lightbox for Photo Gallery -->
+    <!-- COMPONENT: Lightbox -->
     <div id="lightbox" class="lightbox">
         <button class="lightbox-close" onclick="closeLightbox()">×</button>
         <button class="lightbox-prev" onclick="changeLightboxImage(-1)">❮</button>
@@ -708,7 +838,7 @@
         <div id="lightbox-caption" class="lightbox-caption"></div>
     </div>
 
-    <!-- Footer -->
+    <!-- COMPONENT: Footer -->
     <footer>
         <div class="footer-content">
             <div class="footer-grid">
@@ -775,19 +905,4 @@
 
     <script src="script.js"></script>
 </body>
-</html>
-</p>
-        </div>
-    </footer>
-
-    <script src="script.js"></script>
-</body>
-
-</html></p>
-        </div>
-    </footer>
-
-    <script src="script.js"></script>
-</body>
-
 </html>
