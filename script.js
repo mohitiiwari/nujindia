@@ -1,893 +1,806 @@
 // ============================================
-// NUJ India Website JavaScript
+// NUJ India Website — Optimized & Fixed
 // ============================================
-
-// Mobile menu toggle
-const menuToggle = document.getElementById('menuToggle');
-const mobileMenu = document.getElementById('mobileMenu');
-const menuClose = document.getElementById('menuClose');
-
-if (menuToggle && mobileMenu && menuClose) {
-    menuToggle.addEventListener('click', function () {
-        mobileMenu.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    });
-
-    menuClose.addEventListener('click', function () {
-        mobileMenu.classList.remove('active');
-        document.body.style.overflow = '';
-    });
-
-    // Close menu when clicking a direct nav link (HOME, INTRODUCTION, CONTACT)
-    mobileMenu.querySelectorAll('.mobile-nav-list > li > a').forEach(link => {
-        link.addEventListener('click', function (e) {
-            if (this.parentElement.classList.contains('mobile-has-sub')) return;
-            mobileMenu.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-    });
-    // Close menu when clicking any submenu link
-    mobileMenu.querySelectorAll('.mobile-sub a').forEach(link => {
-        link.addEventListener('click', function () {
-            mobileMenu.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-    });
-}
-
-// Mobile submenu expand/collapse (+ / −)
-document.querySelectorAll('.mobile-has-sub').forEach(function (item) {
-    const link = item.querySelector(':scope > a');
-    if (!link) return;
-    link.addEventListener('click', function (e) {
-        e.preventDefault();
-        const isOpen = item.classList.contains('open');
-        document.querySelectorAll('.mobile-has-sub.open').forEach(function (other) {
-            if (other !== item) other.classList.remove('open');
-        });
-        if (isOpen) {
-            item.classList.remove('open');
-        } else {
-            item.classList.add('open');
-        }
-    });
-});
-
-// Megamenu: click to open on touch devices (keep hover for desktop)
 (function () {
-    const nav = document.querySelector('.main-nav');
-    if (!nav) return;
-    const dropdowns = nav.querySelectorAll('.has-dropdown');
-    let touchMode = false;
+    'use strict';
 
-    function closeAll() {
-        dropdowns.forEach(function (d) { d.classList.remove('megamenu-open'); });
+    // ──────────────────────────────────────────
+    // 0.  UTILITY
+    // ──────────────────────────────────────────
+    /** Wait for DOM if needed, then run cb. */
+    function onReady(cb) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', cb);
+        } else {
+            cb();
+        }
     }
 
-    dropdowns.forEach(function (li) {
-        const link = li.querySelector(':scope > a');
-        if (!link) return;
-        link.addEventListener('click', function (e) {
-            if (window.matchMedia('(min-width: 969px)').matches) {
+    // ──────────────────────────────────────────
+    // 1.  MOBILE MENU
+    // ──────────────────────────────────────────
+    function initMobileMenu() {
+        const toggle = document.getElementById('menuToggle');
+        const menu   = document.getElementById('mobileMenu');
+        const close  = document.getElementById('menuClose');
+        if (!toggle || !menu || !close) return;
+
+        function open()  { menu.classList.add('active');    document.body.style.overflow = 'hidden'; }
+        function shut()  { menu.classList.remove('active'); document.body.style.overflow = '';       }
+
+        toggle.addEventListener('click', open);
+        close.addEventListener('click', shut);
+
+        // Direct nav links (no submenu) → close menu
+        menu.querySelectorAll('.mobile-nav-list > li > a').forEach(link => {
+            link.addEventListener('click', function () {
+                if (!this.parentElement.classList.contains('mobile-has-sub')) shut();
+            });
+        });
+
+        // Any submenu link → close menu
+        menu.querySelectorAll('.mobile-sub a').forEach(link => {
+            link.addEventListener('click', shut);
+        });
+    }
+
+    // ──────────────────────────────────────────
+    // 2.  MOBILE SUBMENU EXPAND / COLLAPSE
+    // ──────────────────────────────────────────
+    function initMobileSubmenus() {
+        document.querySelectorAll('.mobile-has-sub').forEach(item => {
+            const link = item.querySelector(':scope > a');
+            if (!link) return;
+
+            link.addEventListener('click', function (e) {
                 e.preventDefault();
-                touchMode = true;
-                const open = li.classList.contains('megamenu-open');
+                const isOpen = item.classList.contains('open');
+
+                // Close every other open submenu
+                document.querySelectorAll('.mobile-has-sub.open').forEach(other => {
+                    if (other !== item) other.classList.remove('open');
+                });
+
+                item.classList.toggle('open', !isOpen);
+            });
+        });
+    }
+
+    // ──────────────────────────────────────────
+    // 3.  DESKTOP MEGAMENU  (click-to-open for
+    //     touch; Escape / outside-click to close)
+    // ──────────────────────────────────────────
+    function initMegamenu() {
+        const nav = document.querySelector('.main-nav');
+        if (!nav) return;
+
+        const dropdowns = nav.querySelectorAll('.has-dropdown');
+
+        function closeAll() {
+            dropdowns.forEach(d => d.classList.remove('megamenu-open'));
+        }
+
+        dropdowns.forEach(li => {
+            const link = li.querySelector(':scope > a');
+            if (!link) return;
+
+            link.addEventListener('click', function (e) {
+                if (!window.matchMedia('(min-width: 969px)').matches) return;
+                e.preventDefault();
+                const wasOpen = li.classList.contains('megamenu-open');
                 closeAll();
-                if (!open) li.classList.add('megamenu-open');
-            }
+                if (!wasOpen) li.classList.add('megamenu-open');
+            });
         });
-    });
 
-    document.addEventListener('click', function (e) {
-        if (!nav.contains(e.target)) closeAll();
-    });
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeAll();
-    });
-})();
+        document.addEventListener('click',  e => { if (!nav.contains(e.target)) closeAll(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
+    }
 
-// State Units megamenu: show different panel per zone (East = Office Bearers, others = zone menu)
-(function () {
-    const stateUnitsLi = document.querySelector('.has-dropdown.has-megamenu');
-    if (!stateUnitsLi) return;
-    const zonesColumn = stateUnitsLi.querySelector('.megamenu-column-zones');
-    const panelsColumn = stateUnitsLi.querySelector('.megamenu-column-panels');
-    const zoneItems = stateUnitsLi.querySelectorAll('.megamenu-zones li[data-zone]');
-    const panels = stateUnitsLi.querySelectorAll('.megamenu-panel[data-panel]');
-    let hidePanelsTimer = null;
-    const delay = 180;
+    // ──────────────────────────────────────────
+    // 4.  STATE-UNITS ZONE PANEL SWITCHER
+    // ──────────────────────────────────────────
+    function initZonePanels() {
+        const host = document.querySelector('.has-dropdown.has-megamenu');
+        if (!host) return;
 
-    function showPanel(zone) {
-        panels.forEach(function (p) {
-            p.classList.toggle('is-visible', p.getAttribute('data-panel') === zone);
+        const zonesCol  = host.querySelector('.megamenu-column-zones');
+        const panelsCol = host.querySelector('.megamenu-column-panels');
+        const zoneItems = host.querySelectorAll('.megamenu-zones li[data-zone]');
+        const panels    = host.querySelectorAll('.megamenu-panel[data-panel]');
+
+        let hideTimer = null;
+        const DELAY  = 180;
+
+        function showPanel(zone) {
+            panels.forEach(p => p.classList.toggle('is-visible', p.dataset.panel === zone));
+        }
+        function hideAll()     { panels.forEach(p => p.classList.remove('is-visible')); }
+        function scheduleHide() { hideTimer = setTimeout(hideAll, DELAY); }
+        function cancelHide()  { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+
+        zoneItems.forEach(li => {
+            li.addEventListener('mouseenter', () => { cancelHide(); showPanel(li.dataset.zone); });
         });
-    }
 
-    function hideAllPanels() {
-        panels.forEach(function (p) { p.classList.remove('is-visible'); });
-    }
-
-    function scheduleHide() {
-        if (hidePanelsTimer) clearTimeout(hidePanelsTimer);
-        hidePanelsTimer = setTimeout(hideAllPanels, delay);
-    }
-
-    function cancelHide() {
-        if (hidePanelsTimer) {
-            clearTimeout(hidePanelsTimer);
-            hidePanelsTimer = null;
+        if (zonesCol)  zonesCol.addEventListener('mouseleave',  scheduleHide);
+        if (panelsCol) {
+            panelsCol.addEventListener('mouseenter', cancelHide);
+            panelsCol.addEventListener('mouseleave', scheduleHide);
         }
     }
 
-    zoneItems.forEach(function (li) {
-        li.addEventListener('mouseenter', function () {
-            cancelHide();
-            showPanel(li.getAttribute('data-zone'));
-        });
-    });
-
-    if (zonesColumn) {
-        zonesColumn.addEventListener('mouseleave', function () {
-            scheduleHide();
-        });
-    }
-
-    if (panelsColumn) {
-        panelsColumn.addEventListener('mouseenter', cancelHide);
-        panelsColumn.addEventListener('mouseleave', function () {
-            scheduleHide();
-        });
-    }
-})();
-
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            e.preventDefault();
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
-});
-
-// Content carousel navigation
-function scrollContent(type, direction) {
-    const container = document.getElementById(type + '-cards');
-    if (container) {
-        const cardWidth = container.querySelector('.content-card').offsetWidth;
-        container.scrollBy({
-            left: direction * (cardWidth + 20),
-            behavior: 'smooth'
-        });
-    }
-}
-
-// Handle enquiry form submission
-function handleEnquiry(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData);
-
-    // Here you would typically send this to your server
-    console.log('Form submitted:', data);
-
-    // Show success message
-    alert('Thank you for your ' + data.type + '! We will get back to you soon.');
-    event.target.reset();
-
-    return false;
-}
-
-// Sticky header on scroll
-let lastScroll = 0;
-const header = document.getElementById('header');
-
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-
-    if (currentScroll <= 0) {
-        header.classList.remove('scroll-up');
-        return;
-    }
-
-    if (currentScroll > lastScroll && currentScroll > 100) {
-        // Scrolling down
-        header.style.transform = 'translateY(-100%)';
-    } else {
-        // Scrolling up
-        header.style.transform = 'translateY(0)';
-    }
-
-    lastScroll = currentScroll;
-});
-
-// Add transition to header
-if (header) {
-    header.style.transition = 'transform 0.3s ease';
-}
-
-// Lazy loading for images (if needed)
-if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    observer.unobserve(img);
+    // ──────────────────────────────────────────
+    // 5.  SMOOTH SCROLL
+    // ──────────────────────────────────────────
+    function initSmoothScroll() {
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', function (e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
-            }
-        });
-    });
-
-    // Uncomment if you want to use lazy loading
-    // document.querySelectorAll('img[data-src]').forEach(img => imageObserver.observe(img));
-}
-
-// Newsletter form handling
-const newsletterForms = document.querySelectorAll('.newsletter-form');
-newsletterForms.forEach(form => {
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const email = this.querySelector('input[type="email"]').value;
-
-        // Here you would send to your server
-        console.log('Newsletter subscription:', email);
-        alert('Thank you for subscribing to our newsletter!');
-        this.reset();
-    });
-});
-
-// Add animation on scroll
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-// Observe sections for animation
-document.querySelectorAll('.feature-card, .leader-card, .gallery-item').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(el);
-});
-
-// Console log for debugging
-console.log('NUJ India website loaded successfully!');
-
-// ============================================
-// Photo Slideshow Functionality
-// ============================================
-let currentSlideIndex = 0;
-let slideInterval;
-
-function showSlide(index) {
-    const slides = document.querySelectorAll('.news-highlights .slideshow-container .slide');
-    const indicators = document.querySelectorAll('.news-highlights .slide-indicators .indicator');
-
-    if (!slides.length) return;
-
-    if (index >= slides.length) {
-        currentSlideIndex = 0;
-    } else if (index < 0) {
-        currentSlideIndex = slides.length - 1;
-    } else {
-        currentSlideIndex = index;
-    }
-
-    slides.forEach(slide => slide.classList.remove('active'));
-    indicators.forEach(indicator => indicator.classList.remove('active'));
-
-    slides[currentSlideIndex].classList.add('active');
-    indicators[currentSlideIndex].classList.add('active');
-}
-
-function changeSlide(direction) {
-    showSlide(currentSlideIndex + direction);
-    resetSlideInterval();
-}
-
-function currentSlide(index) {
-    showSlide(index - 1);
-    resetSlideInterval();
-}
-
-function autoSlide() {
-    slideInterval = setInterval(() => {
-        showSlide(currentSlideIndex + 1);
-    }, 5000); // Change slide every 5 seconds
-}
-
-function resetSlideInterval() {
-    clearInterval(slideInterval);
-    autoSlide();
-}
-
-// Initialize "In Focus" slideshow (news-highlights section only)
-const slideshowContainer = document.querySelector('.news-highlights .slideshow-container');
-if (slideshowContainer) {
-    showSlide(currentSlideIndex);
-    autoSlide();
-}
-
-// ============================================
-// Lightbox Functionality
-// ============================================
-const lightboxImages = [
-    {
-        src: 'images/1766290219_G8IgXNpb0AAF9GH (1).jpg',
-        caption: 'All India Media Meet'
-    },
-    {
-        src: 'images/1766290098_WhatsApp_Image_2025-12-15_at_08_07_25_871f23f6.jpg',
-        caption: "Governor's Address"
-    },
-    {
-        src: 'images/1769686728679_image.png',
-        caption: 'Press Conference'
-    },
-    {
-        src: 'images/ras_bihari.jpg',
-        caption: 'Leadership Summit'
-    },
-    {
-        src: 'images/pradeep_tiwari.jpg',
-        caption: 'Annual Convention'
-    },
-    {
-        src: 'images/1766290219_G8IgXNpb0AAF9GH (1).jpg',
-        caption: 'Regional Workshop'
-    }
-];
-
-let currentLightboxIndex = 0;
-
-function openLightbox(index) {
-    currentLightboxIndex = index;
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImage = document.getElementById('lightbox-image');
-    const lightboxCaption = document.getElementById('lightbox-caption');
-
-    if (lightbox && lightboxImage && lightboxCaption) {
-        lightboxImage.src = lightboxImages[index].src;
-        lightboxCaption.textContent = lightboxImages[index].caption;
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeLightbox() {
-    const lightbox = document.getElementById('lightbox');
-    if (lightbox) {
-        lightbox.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-}
-
-function changeLightboxImage(direction) {
-    currentLightboxIndex += direction;
-
-    if (currentLightboxIndex >= lightboxImages.length) {
-        currentLightboxIndex = 0;
-    } else if (currentLightboxIndex < 0) {
-        currentLightboxIndex = lightboxImages.length - 1;
-    }
-
-    const lightboxImage = document.getElementById('lightbox-image');
-    const lightboxCaption = document.getElementById('lightbox-caption');
-
-    if (lightboxImage && lightboxCaption) {
-        lightboxImage.src = lightboxImages[currentLightboxIndex].src;
-        lightboxCaption.textContent = lightboxImages[currentLightboxIndex].caption;
-    }
-}
-
-// Close lightbox with Escape key
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-        closeLightbox();
-    } else if (e.key === 'ArrowLeft') {
-        const lightbox = document.getElementById('lightbox');
-        if (lightbox && lightbox.classList.contains('active')) {
-            changeLightboxImage(-1);
-        }
-    } else if (e.key === 'ArrowRight') {
-        const lightbox = document.getElementById('lightbox');
-        if (lightbox && lightbox.classList.contains('active')) {
-            changeLightboxImage(1);
-        }
-    }
-});
-
-// Close lightbox when clicking outside the image
-document.getElementById('lightbox')?.addEventListener('click', function (e) {
-    if (e.target === this) {
-        closeLightbox();
-    }
-});
-// News slider (photo strip) – only target slides inside .news-slider
-const newsSlider = document.querySelector('.news-slider .slider-wrapper');
-if (newsSlider) {
-    const slides = newsSlider.querySelectorAll('.slide');
-    const dots = document.querySelectorAll('.news-slider .dot');
-    let newsSlideIndex = 0;
-    if (slides.length && dots.length) {
-        setInterval(() => {
-            slides[newsSlideIndex].classList.remove('active');
-            dots[newsSlideIndex].classList.remove('active');
-            newsSlideIndex = (newsSlideIndex + 1) % slides.length;
-            slides[newsSlideIndex].classList.add('active');
-            dots[newsSlideIndex].classList.add('active');
-        }, 4000);
-    }
-}
-// Get all gallery items
-const galleryItems = document.querySelectorAll('.gallery-item');
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightbox-img');
-const lightboxCaption = document.querySelector('.lightbox-caption');
-const closeBtn = document.querySelector('.close');
-const prevBtn = document.querySelector('.prev');
-const nextBtn = document.querySelector('.next');
-
-let currentImageIndex = 0;
-let images = [];
-
-// Collect all images and their data
-galleryItems.forEach((item, index) => {
-    const img = item.querySelector('img');
-    const title = item.querySelector('.overlay-content h3').textContent;
-    const subtitle = item.querySelector('.overlay-content p').textContent;
-
-    images.push({
-        src: img.src,
-        alt: img.alt,
-        title: title,
-        subtitle: subtitle
-    });
-
-    // Add click event to open lightbox
-    item.addEventListener('click', () => {
-        openLightbox(index);
-    });
-});
-
-// Open lightbox
-function openLightbox(index) {
-    currentImageIndex = index;
-    showImage(currentImageIndex);
-    lightbox.style.display = 'block';
-    document.body.style.overflow = 'hidden'; // Prevent scrolling
-}
-
-// Close lightbox
-function closeLightbox() {
-    lightbox.style.display = 'none';
-    document.body.style.overflow = 'auto'; // Restore scrolling
-}
-
-// Show specific image
-function showImage(index) {
-    if (index < 0) {
-        currentImageIndex = images.length - 1;
-    } else if (index >= images.length) {
-        currentImageIndex = 0;
-    } else {
-        currentImageIndex = index;
-    }
-
-    const currentImage = images[currentImageIndex];
-    lightboxImg.src = currentImage.src;
-    lightboxImg.alt = currentImage.alt;
-    lightboxCaption.innerHTML = `<strong>${currentImage.title}</strong><br>${currentImage.subtitle}`;
-}
-
-// Navigate to previous image
-function showPrevImage() {
-    showImage(currentImageIndex - 1);
-}
-
-// Navigate to next image
-function showNextImage() {
-    showImage(currentImageIndex + 1);
-}
-
-// Event Listeners
-closeBtn.addEventListener('click', closeLightbox);
-prevBtn.addEventListener('click', showPrevImage);
-nextBtn.addEventListener('click', showNextImage);
-
-// Close lightbox when clicking outside the image
-lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) {
-        closeLightbox();
-    }
-});
-
-// Keyboard navigation
-document.addEventListener('keydown', (e) => {
-    if (lightbox.style.display === 'block') {
-        switch (e.key) {
-            case 'Escape':
-                closeLightbox();
-                break;
-            case 'ArrowLeft':
-                showPrevImage();
-                break;
-            case 'ArrowRight':
-                showNextImage();
-                break;
-        }
-    }
-});
-
-// Lazy loading for images
-const observerOptions = {
-    root: null,
-    rootMargin: '50px',
-    threshold: 0.01
-};
-
-const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const img = entry.target;
-            img.src = img.dataset.src || img.src;
-            img.classList.add('loaded');
-            observer.unobserve(img);
-        }
-    });
-}, observerOptions);
-
-// Observe all gallery images
-document.querySelectorAll('.gallery-item img').forEach(img => {
-    imageObserver.observe(img);
-});
-
-// Add smooth scroll animation when page loads
-window.addEventListener('load', () => {
-    const items = document.querySelectorAll('.gallery-item');
-    items.forEach((item, index) => {
-        setTimeout(() => {
-            item.style.opacity = '0';
-            item.style.transform = 'translateY(30px)';
-            item.style.transition = 'all 0.5s ease';
-
-            setTimeout(() => {
-                item.style.opacity = '1';
-                item.style.transform = 'translateY(0)';
-            }, 50);
-        }, index * 50);
-    });
-});
-
-// Touch support for mobile swipe
-let touchStartX = 0;
-let touchEndX = 0;
-
-lightbox.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-});
-
-lightbox.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-});
-
-function handleSwipe() {
-    const swipeThreshold = 50;
-    const diff = touchStartX - touchEndX;
-
-    if (Math.abs(diff) > swipeThreshold) {
-        if (diff > 0) {
-            // Swipe left - show next
-            showNextImage();
-        } else {
-            // Swipe right - show previous
-            showPrevImage();
-        }
-    }
-}
-
-// Prevent context menu on images
-document.querySelectorAll('.gallery-item img').forEach(img => {
-    img.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-    });
-});
-
-// Add loading indicator
-const loadingIndicator = document.createElement('div');
-loadingIndicator.className = 'loading-indicator';
-loadingIndicator.innerHTML = '<div class="spinner"></div>';
-loadingIndicator.style.cssText = `
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10001;
-`;
-
-document.body.appendChild(loadingIndicator);
-
-// Show loading when changing images in lightbox
-lightboxImg.addEventListener('load', () => {
-    loadingIndicator.style.display = 'none';
-});
-
-lightboxImg.addEventListener('error', () => {
-    loadingIndicator.style.display = 'none';
-    lightboxCaption.innerHTML = 'Image failed to load';
-});
-
-// Add image counter
-const createImageCounter = () => {
-    const counter = document.createElement('div');
-    counter.className = 'image-counter';
-    counter.style.cssText = `
-        position: absolute;
-        top: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: white;
-        font-size: 18px;
-        background-color: rgba(0, 0, 0, 0.7);
-        padding: 10px 20px;
-        border-radius: 5px;
-        z-index: 10000;
-    `;
-    lightbox.appendChild(counter);
-    return counter;
-};
-
-const imageCounter = createImageCounter();
-
-// Update counter when showing image
-const originalShowImage = showImage;
-showImage = function (index) {
-    originalShowImage(index);
-    imageCounter.textContent = `${currentImageIndex + 1} / ${images.length}`;
-};
-
-console.log(`Photo Gallery Initialized: ${images.length} images loaded`);
-const track = document.querySelector('.scroller-track');
-
-let scrollAmount = 0;
-
-function autoScroll() {
-    scrollAmount += 1;
-    track.scrollLeft = scrollAmount;
-
-    if (scrollAmount >= track.scrollWidth - track.clientWidth) {
-        scrollAmount = 0;
-    }
-}
-
-let scrollInterval = setInterval(autoScroll, 20);
-
-// mouse hover pe auto scroll stop
-track.addEventListener('mouseenter', () => {
-    clearInterval(scrollInterval);
-});
-
-track.addEventListener('mouseleave', () => {
-    scrollInterval = setInterval(autoScroll, 20);
-});
-// Wait for DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // Get Elements
-    const scroller = document.getElementById('imageScroller');
-    const scrollLeftBtn = document.getElementById('scrollLeft');
-    const scrollRightBtn = document.getElementById('scrollRight');
-    const indicatorsContainer = document.getElementById('scrollIndicators');
-
-    // Check if elements exist
-    if (!scroller || !scrollLeftBtn || !scrollRightBtn || !indicatorsContainer) {
-        console.error('Required elements not found!');
-        return;
-    }
-
-    // Configuration
-    const scrollAmount = 370; // Width of one item + gap
-    let isDragging = false;
-    let startX;
-    let scrollLeft;
-
-    // Initialize scroll indicators
-    function initIndicators() {
-        const items = document.querySelectorAll('.scroll-item');
-        const numberOfIndicators = Math.ceil(items.length / 3); // One indicator per 3 items
-        
-        indicatorsContainer.innerHTML = ''; // Clear existing indicators
-        
-        for (let i = 0; i < numberOfIndicators; i++) {
-            const indicator = document.createElement('div');
-            indicator.classList.add('indicator');
-            if (i === 0) indicator.classList.add('active');
-            indicator.addEventListener('click', () => scrollToIndicator(i));
-            indicatorsContainer.appendChild(indicator);
-        }
-    }
-
-    // Scroll to specific indicator
-    function scrollToIndicator(index) {
-        const scrollPosition = index * scrollAmount * 3;
-        scroller.scrollTo({
-            left: scrollPosition,
-            behavior: 'smooth'
-        });
-    }
-
-    // Update active indicator based on scroll position
-    function updateIndicators() {
-        const indicators = document.querySelectorAll('.indicator');
-        const scrollPosition = scroller.scrollLeft;
-        const activeIndex = Math.round(scrollPosition / (scrollAmount * 3));
-        
-        indicators.forEach((indicator, index) => {
-            if (index === activeIndex) {
-                indicator.classList.add('active');
-            } else {
-                indicator.classList.remove('active');
-            }
-        });
-    }
-
-    // Update button states
-    function updateButtonStates() {
-        // Left button
-        if (scroller.scrollLeft <= 0) {
-            scrollLeftBtn.style.opacity = '0.5';
-            scrollLeftBtn.style.pointerEvents = 'none';
-        } else {
-            scrollLeftBtn.style.opacity = '1';
-            scrollLeftBtn.style.pointerEvents = 'auto';
-        }
-        
-        // Right button
-        if (scroller.scrollLeft >= scroller.scrollWidth - scroller.clientWidth - 1) {
-            scrollRightBtn.style.opacity = '0.5';
-            scrollRightBtn.style.pointerEvents = 'none';
-        } else {
-            scrollRightBtn.style.opacity = '1';
-            scrollRightBtn.style.pointerEvents = 'auto';
-        }
-    }
-
-    // Scroll Left Button
-    scrollLeftBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        scroller.scrollBy({
-            left: -scrollAmount,
-            behavior: 'smooth'
-        });
-    });
-
-    // Scroll Right Button
-    scrollRightBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        scroller.scrollBy({
-            left: scrollAmount,
-            behavior: 'smooth'
-        });
-    });
-
-    // Mouse Drag to Scroll
-    scroller.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        scroller.classList.add('dragging');
-        scroller.style.cursor = 'grabbing';
-        startX = e.pageX - scroller.offsetLeft;
-        scrollLeft = scroller.scrollLeft;
-        e.preventDefault();
-    });
-
-    scroller.addEventListener('mouseleave', () => {
-        isDragging = false;
-        scroller.classList.remove('dragging');
-        scroller.style.cursor = 'grab';
-    });
-
-    scroller.addEventListener('mouseup', () => {
-        isDragging = false;
-        scroller.classList.remove('dragging');
-        scroller.style.cursor = 'grab';
-    });
-
-    scroller.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const x = e.pageX - scroller.offsetLeft;
-        const walk = (x - startX) * 2; // Scroll speed multiplier
-        scroller.scrollLeft = scrollLeft - walk;
-    });
-
-    // Touch Support for Mobile
-    let touchStartX = 0;
-    let touchScrollLeft = 0;
-
-    scroller.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].pageX;
-        touchScrollLeft = scroller.scrollLeft;
-    }, { passive: true });
-
-    scroller.addEventListener('touchmove', (e) => {
-        const touchX = e.touches[0].pageX;
-        const walk = (touchStartX - touchX) * 1.5;
-        scroller.scrollLeft = touchScrollLeft + walk;
-    }, { passive: true });
-
-    // Update indicators and buttons on scroll
-    scroller.addEventListener('scroll', () => {
-        updateIndicators();
-        updateButtonStates();
-    });
-
-    // Keyboard Navigation
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
-            scroller.scrollBy({
-                left: -scrollAmount,
-                behavior: 'smooth'
             });
-        } else if (e.key === 'ArrowRight') {
-            scroller.scrollBy({
-                left: scrollAmount,
-                behavior: 'smooth'
-            });
-        }
-    });
+        });
+    }
 
-    // Auto-scroll feature (optional - uncomment to enable)
-    /*
-    let autoScrollInterval;
+    // ──────────────────────────────────────────
+    // 6.  CONTENT CAROUSEL  (scrollContent helper)
+    // ──────────────────────────────────────────
+    window.scrollContent = function (type, direction) {
+        const container = document.getElementById(type + '-cards');
+        if (!container) return;
+        const card = container.querySelector('.content-card');
+        if (!card) return;
+        container.scrollBy({ left: direction * (card.offsetWidth + 20), behavior: 'smooth' });
+    };
 
-    function startAutoScroll() {
-        autoScrollInterval = setInterval(() => {
-            if (scroller.scrollLeft >= scroller.scrollWidth - scroller.clientWidth) {
-                scroller.scrollTo({
-                    left: 0,
-                    behavior: 'smooth'
-                });
+    // ──────────────────────────────────────────
+    // 7.  ENQUIRY FORM
+    // ──────────────────────────────────────────
+    window.handleEnquiry = function (event) {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(event.target));
+        console.log('Form submitted:', data);
+        alert('Thank you for your ' + data.type + '! We will get back to you soon.');
+        event.target.reset();
+        return false;
+    };
+
+    // ──────────────────────────────────────────
+    // 8.  STICKY / HIDE-ON-SCROLL HEADER
+    // ──────────────────────────────────────────
+    function initStickyHeader() {
+        const header = document.getElementById('header');
+        if (!header) return;
+
+        header.style.transition = 'transform 0.3s ease';
+        let lastY = 0;
+
+        window.addEventListener('scroll', () => {
+            const y = window.pageYOffset;
+            if (y <= 0) {
+                header.style.transform = 'translateY(0)';
+            } else if (y > lastY && y > 100) {
+                header.style.transform = 'translateY(-100%)';   // scrolling down
             } else {
-                scroller.scrollBy({
-                    left: scrollAmount,
-                    behavior: 'smooth'
+                header.style.transform = 'translateY(0)';       // scrolling up
+            }
+            lastY = y;
+        });
+    }
+
+    // ──────────────────────────────────────────
+    // 9.  SCROLL-REVEAL ANIMATION
+    // ──────────────────────────────────────────
+    function initScrollReveal() {
+        const targets = document.querySelectorAll('.feature-card, .leader-card, .gallery-item');
+        if (!targets.length) return;
+
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.style.opacity    = '1';
+                    e.target.style.transform  = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        targets.forEach(el => {
+            el.style.cssText += 'opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;';
+            obs.observe(el);
+        });
+    }
+
+    // ──────────────────────────────────────────
+    // 10. NEWSLETTER FORM
+    // ──────────────────────────────────────────
+    function initNewsletter() {
+        document.querySelectorAll('.newsletter-form').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const email = this.querySelector('input[type="email"]').value;
+                console.log('Newsletter subscription:', email);
+                alert('Thank you for subscribing to our newsletter!');
+                this.reset();
+            });
+        });
+    }
+
+    // ──────────────────────────────────────────
+    // 11. "IN FOCUS" SLIDESHOW  (.news-highlights)
+    // ──────────────────────────────────────────
+    function initInFocusSlideshow() {
+        const container = document.querySelector('.news-highlights .slideshow-container');
+        if (!container) return;
+
+        const slides     = container.querySelectorAll('.slide');
+        const indicators = document.querySelectorAll('.news-highlights .slide-indicators .indicator');
+        if (!slides.length) return;
+
+        let current  = 0;
+        let timer    = null;
+        const DELAY  = 5000;
+
+        function show(i) {
+            current = (i + slides.length) % slides.length;
+            slides.forEach((s, idx)     => s.classList.toggle('active', idx === current));
+            indicators.forEach((ind, idx) => ind.classList.toggle('active', idx === current));
+        }
+
+        function startAuto() {
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => show(current + 1), DELAY);
+        }
+
+        // Expose globals used by HTML onclick attributes (if any)
+        window.changeSlide = function (dir) { show(current + dir); startAuto(); };
+        window.currentSlide = function (i)  { show(i - 1);         startAuto(); };
+
+        show(0);
+        startAuto();
+    }
+
+    // ──────────────────────────────────────────
+    // 12. NEWS SLIDER  (photo-strip, .news-slider)
+    // ──────────────────────────────────────────
+    function initNewsSlider() {
+        const wrapper = document.querySelector('.news-slider .slider-wrapper');
+        if (!wrapper) return;
+
+        const slides = wrapper.querySelectorAll('.slide');
+        const dots   = document.querySelectorAll('.news-slider .dot');
+        if (!slides.length) return;
+
+        let idx   = 0;
+        let timer = null;
+
+        // Ensure first slide starts active
+        slides.forEach((s, i) => s.classList.toggle('active', i === 0));
+        dots.forEach((d, i)   => d.classList.toggle('active', i === 0));
+
+        function tick() {
+            slides[idx].classList.remove('active');
+            if (dots[idx]) dots[idx].classList.remove('active');
+            idx = (idx + 1) % slides.length;
+            slides[idx].classList.add('active');
+            if (dots[idx]) dots[idx].classList.add('active');
+        }
+
+        function startAuto() { if (timer) clearInterval(timer); timer = setInterval(tick, 4000); }
+        function stopAuto()  { if (timer) { clearInterval(timer); timer = null; } }
+
+        wrapper.addEventListener('mouseenter', stopAuto);
+        wrapper.addEventListener('mouseleave', startAuto);
+
+        startAuto();
+    }
+
+    // ──────────────────────────────────────────
+    // 13. HERO BANNER SLIDER  (.slider-container)
+    // ──────────────────────────────────────────
+    function initHeroBanner() {
+        const container = document.querySelector('.slider-container');
+        if (!container) return;
+
+        const slidesList = container.querySelector('.slides');
+        const slides     = slidesList ? slidesList.querySelectorAll('li') : [];
+        const prevBtn    = container.querySelector('.flex-prev');
+        const nextBtn    = container.querySelector('.flex-next');
+        const dotsOl     = container.querySelector('.flex-control-nav');
+        if (!slides.length || !dotsOl) return;
+
+        let current = 0;
+        const total = slides.length;
+        let autoTimer = null;
+        const AUTO_MS = 4000;
+        const SWIPE   = 60;
+
+        function show(i) {
+            current = (i + total) % total;
+            slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+            dotsOl.querySelectorAll('li').forEach((d, idx) => d.classList.toggle('active', idx === current));
+        }
+
+        function startAuto() { if (autoTimer) clearInterval(autoTimer); autoTimer = setInterval(() => show(current + 1), AUTO_MS); }
+        function stopAuto()  { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+
+        // Init slides (clear any stale active)
+        slides.forEach(s => s.classList.remove('active'));
+        show(0);
+
+        // Build dots
+        dotsOl.innerHTML = '';
+        for (let d = 0; d < total; d++) {
+            const li = document.createElement('li');
+            li.setAttribute('role', 'button');
+            li.setAttribute('aria-label', 'Slide ' + (d + 1));
+            li.addEventListener('click', (e) => { e.preventDefault(); show(d); startAuto(); });
+            dotsOl.appendChild(li);
+        }
+        // Mark first dot active after build
+        show(0);
+
+        // Arrow buttons
+        if (prevBtn) prevBtn.addEventListener('click', e => { e.preventDefault(); show(current - 1); startAuto(); });
+        if (nextBtn) nextBtn.addEventListener('click', e => { e.preventDefault(); show(current + 1); startAuto(); });
+
+        // Touch swipe
+        let startX = 0;
+        container.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+        container.addEventListener('touchend',   e => {
+            const diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > SWIPE) { diff > 0 ? show(current + 1) : show(current - 1); startAuto(); }
+        }, { passive: true });
+
+        // Pause on hover
+        container.addEventListener('mouseenter', stopAuto);
+        container.addEventListener('mouseleave', startAuto);
+
+        startAuto();
+    }
+
+    // ──────────────────────────────────────────
+    // 14. MEDIA CLIPPINGS GALLERY SLIDER
+    // ──────────────────────────────────────────
+    function initGallerySlider() {
+        const container = document.querySelector('.gallery-container .media-clippings-slider');
+        if (!container) return;
+
+        const viewport = container.querySelector('.gallery-slider-viewport');
+        const track    = container.querySelector('.gallery-slider-track');
+        const items    = track ? track.querySelectorAll('.gallery-item') : [];
+        const prevBtn  = container.querySelector('.gallery-slider-prev');
+        const nextBtn  = container.querySelector('.gallery-slider-next');
+        const dotsEl   = document.querySelector('.gallery-container .gallery-slider-dots');
+        if (!viewport || !track || !items.length) return;
+
+        const total   = items.length;
+        const GAP_PX  = 20;
+        const AUTO_MS = 5000;
+        let currentPage  = 0;
+        let itemsPerPage = 3;
+        let totalPages   = 1;
+        let autoTimer    = null;
+
+        function getItemsPerPage() {
+            const w = window.innerWidth;
+            if (w <= 480) return 1;
+            if (w <= 768) return 2;
+            return 3;
+        }
+
+        function buildDots() {
+            if (!dotsEl) return;
+            dotsEl.innerHTML = '';
+            for (let d = 0; d < totalPages; d++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.setAttribute('role', 'tab');
+                btn.setAttribute('aria-label', 'Go to slide ' + (d + 1));
+                btn.classList.toggle('active', d === 0);
+                btn.addEventListener('click', () => { goToPage(d); startAuto(); });
+                dotsEl.appendChild(btn);
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = ((page % totalPages) + totalPages) % totalPages;
+            const vw        = viewport.offsetWidth;
+            const itemWidth = (vw - (itemsPerPage - 1) * GAP_PX) / itemsPerPage;
+            track.style.transform = 'translateX(-' + (currentPage * (itemWidth + GAP_PX)) + 'px)';
+
+            if (dotsEl) {
+                dotsEl.querySelectorAll('[role="tab"]').forEach((d, i) => d.classList.toggle('active', i === currentPage));
+            }
+        }
+
+        function updateLayout() {
+            itemsPerPage = getItemsPerPage();
+            totalPages   = Math.max(1, Math.ceil(total / itemsPerPage));
+            if (currentPage >= totalPages) currentPage = totalPages - 1;
+
+            const vw        = viewport.offsetWidth;
+            const itemWidth = (vw - (itemsPerPage - 1) * GAP_PX) / itemsPerPage;
+            track.style.width = (total * itemWidth + (total - 1) * GAP_PX) + 'px';
+            track.style.gap   = GAP_PX + 'px';
+            items.forEach(it => { it.style.flex = '0 0 ' + itemWidth + 'px'; });
+
+            buildDots();      // rebuild dots every resize so count stays correct
+            goToPage(currentPage);
+        }
+
+        function next()      { goToPage(currentPage + 1); startAuto(); }
+        function prev()      { goToPage(currentPage - 1); startAuto(); }
+        function startAuto() { if (autoTimer) clearInterval(autoTimer); autoTimer = setInterval(next, AUTO_MS); }
+        function stopAuto()  { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+
+        // Init
+        updateLayout();
+
+        if (prevBtn) prevBtn.addEventListener('click', e => { e.preventDefault(); prev(); });
+        if (nextBtn) nextBtn.addEventListener('click', e => { e.preventDefault(); next(); });
+        container.addEventListener('mouseenter', stopAuto);
+        container.addEventListener('mouseleave', startAuto);
+
+        // Touch swipe on viewport
+        let tStart = 0;
+        viewport.addEventListener('touchstart', e => { tStart = e.touches[0].clientX; }, { passive: true });
+        viewport.addEventListener('touchend',   e => {
+            const diff = tStart - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); }
+        }, { passive: true });
+
+        window.addEventListener('resize', updateLayout);
+        startAuto();
+    }
+
+    // ──────────────────────────────────────────
+    // 15. LIGHTBOX  (single unified instance)
+    // ──────────────────────────────────────────
+    function initLightbox() {
+        // Use the first lightbox in DOM (Photo Gallery full-screen viewer)
+        const lightbox = document.getElementById('lightbox');
+        if (!lightbox) return;
+        // Must use the img inside this lightbox so the correct image loads when we show it
+        const lightboxImg = lightbox.querySelector('#lightbox-image') || lightbox.querySelector('img') ||
+            document.getElementById('lightbox-image') || document.getElementById('lightbox-img');
+        const lightboxCaption = lightbox.querySelector('#lightbox-caption') || lightbox.querySelector('.lightbox-caption') ||
+            document.getElementById('lightbox-caption');
+        const closeBtn = lightbox.querySelector('.lightbox-close, .close');
+        const prevBtn  = lightbox.querySelector('.lightbox-prev, .prev');
+        const nextBtn  = lightbox.querySelector('.lightbox-next, .next');
+        if (!lightboxImg) return;
+
+        // ── Image data pool: prefer Photo Gallery .photo-item (matches onclick="openLightbox(0)" etc.)
+        let images = [];
+        document.querySelectorAll('.photo-item').forEach(item => {
+            const img = item.querySelector('img');
+            const titleEl = item.querySelector('.overlay-text');
+            if (img) {
+                images.push({
+                    src: img.src || img.getAttribute('src') || '',
+                    alt: img.alt || '',
+                    title: titleEl ? titleEl.textContent.trim() : '',
+                    subtitle: ''
                 });
             }
-        }, 3000);
+        });
+
+        // Fallback: .gallery-item (Media Clippings slider)
+        if (!images.length) {
+            document.querySelectorAll('.gallery-item').forEach(item => {
+                const img = item.querySelector('img');
+                const titleEl = item.querySelector('.overlay-content h3');
+                const subEl = item.querySelector('.overlay-content p');
+                if (img) {
+                    images.push({
+                        src: img.src || img.getAttribute('src') || '',
+                        alt: img.alt || '',
+                        title: titleEl ? titleEl.textContent : '',
+                        subtitle: subEl ? subEl.textContent : ''
+                    });
+                }
+            });
+        }
+
+        // Fallback: hard-coded (same order as Photo Gallery)
+        if (!images.length) {
+            images = [
+                { src: 'images/1766290219_G8IgXNpb0AAF9GH (1).jpg', alt: 'All India Media Meet', title: 'All India Media Meet', subtitle: '' },
+                { src: 'images/1766290098_WhatsApp_Image_2025-12-15_at_08_07_25_871f23f6.jpg', alt: "Governor's Address", title: "Governor's Address", subtitle: '' },
+                { src: 'images/1769686728679_image.png', alt: 'Press Conference', title: 'Press Conference', subtitle: '' },
+                { src: 'images/ras_bihari.jpg', alt: 'Leadership Summit', title: 'Leadership Summit', subtitle: '' },
+                { src: 'images/pradeep_tiwari.jpg', alt: 'Annual Convention', title: 'Annual Convention', subtitle: '' },
+                { src: 'images/1766290219_G8IgXNpb0AAF9GH (1).jpg', alt: 'Regional Workshop', title: 'Regional Workshop', subtitle: '' }
+            ];
+        }
+
+        let currentIdx = 0;
+
+        // ── Counter overlay ──
+        const counter = document.createElement('div');
+        counter.className = 'image-counter';
+        counter.style.cssText = 'position:absolute;top:30px;left:50%;transform:translateX(-50%);color:#fff;font-size:18px;background:rgba(0,0,0,.7);padding:10px 20px;border-radius:5px;z-index:10000;';
+        lightbox.appendChild(counter);
+
+        // ── Core helpers ──
+        function renderImage(i) {
+            currentIdx = ((i % images.length) + images.length) % images.length;
+            const cur  = images[currentIdx];
+
+            lightboxImg.src = cur.src;
+            lightboxImg.alt = cur.alt;
+
+            if (lightboxCaption) {
+                lightboxCaption.innerHTML = cur.title
+                    ? '<strong>' + cur.title + '</strong>' + (cur.subtitle ? '<br>' + cur.subtitle : '')
+                    : cur.subtitle || '';
+            }
+            counter.textContent = (currentIdx + 1) + ' / ' + images.length;
+        }
+
+        function open(index) {
+            if (!images.length) return;
+            renderImage(index);
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function close() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ── Expose globally so HTML onclick="openLightbox(0)" and changeLightboxImage(±1) work ──
+        window.openLightbox = open;
+        window.closeLightbox = close;
+        window.changeLightboxImage = function (delta) { renderImage(currentIdx + delta); };
+
+        // ── Wire Photo Gallery .photo-item clicks (indices 0–5) ──
+        document.querySelectorAll('.photo-item').forEach((item, idx) => {
+            item.addEventListener('click', () => open(idx));
+        });
+        // ── Wire Media Clippings .gallery-item clicks ──
+        document.querySelectorAll('.gallery-item').forEach((item, idx) => {
+            item.addEventListener('click', () => open(idx));
+        });
+
+        // ── Buttons (first lightbox uses .lightbox-close, .lightbox-prev, .lightbox-next) ──
+        if (closeBtn) closeBtn.addEventListener('click', close);
+        if (prevBtn)  prevBtn.addEventListener('click', () => renderImage(currentIdx - 1));
+        if (nextBtn)  nextBtn.addEventListener('click', () => renderImage(currentIdx + 1));
+
+        // ── Click-outside closes ──
+        lightbox.addEventListener('click', e => { if (e.target === lightbox) close(); });
+
+        // ── Keyboard (single listener) ──
+        document.addEventListener('keydown', e => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape')     close();
+            else if (e.key === 'ArrowLeft')  renderImage(currentIdx - 1);
+            else if (e.key === 'ArrowRight') renderImage(currentIdx + 1);
+        });
+
+        // ── Touch swipe ──
+        let swipeStartX = 0;
+        lightbox.addEventListener('touchstart', e => { swipeStartX = e.changedTouches[0].screenX; }, { passive: true });
+        lightbox.addEventListener('touchend',   e => {
+            const diff = swipeStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) { diff > 0 ? renderImage(currentIdx + 1) : renderImage(currentIdx - 1); }
+        }, { passive: true });
+
+        // ── Image load / error feedback ──
+        lightboxImg.addEventListener('error', () => {
+            if (lightboxCaption) lightboxCaption.innerHTML = 'Image failed to load';
+        });
+
+        console.log('Lightbox initialized: ' + images.length + ' images');
     }
 
-    function stopAutoScroll() {
-        clearInterval(autoScrollInterval);
+    // ──────────────────────────────────────────
+    // 16. LAZY LOAD  (gallery images)
+    // ──────────────────────────────────────────
+    function initLazyLoad() {
+        if (!('IntersectionObserver' in window)) return;
+
+        const obs = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                const img = entry.target;
+                if (img.dataset.src) img.src = img.dataset.src;
+                img.classList.add('loaded');
+                observer.unobserve(img);
+            });
+        }, { rootMargin: '50px', threshold: 0.01 });
+
+        document.querySelectorAll('.gallery-item img[data-src], img[data-src]').forEach(img => obs.observe(img));
     }
 
-    // Start auto-scroll
-    startAutoScroll();
+    // ──────────────────────────────────────────
+    // 17. GALLERY LOAD STAGGER ANIMATION
+    // ──────────────────────────────────────────
+    function initGalleryStagger() {
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.gallery-item').forEach((item, i) => {
+                item.style.opacity    = '0';
+                item.style.transform  = 'translateY(30px)';
+                item.style.transition = 'all 0.5s ease';
 
-    // Pause on hover
-    scroller.addEventListener('mouseenter', stopAutoScroll);
-    scroller.addEventListener('mouseleave', startAutoScroll);
-    */
+                setTimeout(() => {
+                    item.style.opacity   = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 50 + i * 50);
+            });
+        });
+    }
 
-    // Initialize
-    initIndicators();
-    updateButtonStates();
-    scroller.style.cursor = 'grab';
+    // ──────────────────────────────────────────
+    // 18. PREVENT CONTEXT-MENU ON GALLERY IMAGES
+    // ──────────────────────────────────────────
+    function initNoContextMenu() {
+        document.querySelectorAll('.gallery-item img').forEach(img => {
+            img.addEventListener('contextmenu', e => e.preventDefault());
+        });
+    }
 
-    console.log('Image scroller initialized successfully!');
-    
-});
+    // ──────────────────────────────────────────
+    // 19. HORIZONTAL AUTO-SCROLLER  (.scroller-track)
+    // ──────────────────────────────────────────
+    function initAutoScroller() {
+        const track = document.querySelector('.scroller-track');
+        if (!track) return;
+
+        let pos      = 0;
+        let interval = null;
+
+        function tick() {
+            pos += 1;
+            if (pos >= track.scrollWidth - track.clientWidth) pos = 0;
+            track.scrollLeft = pos;
+        }
+
+        function startScroll() { if (!interval) interval = setInterval(tick, 20); }
+        function stopScroll()  { if (interval)  { clearInterval(interval); interval = null; } }
+
+        track.addEventListener('mouseenter', stopScroll);
+        track.addEventListener('mouseleave', startScroll);
+
+        startScroll();
+    }
+
+    // ──────────────────────────────────────────
+    // 20. IMAGE SCROLLER  (#imageScroller)
+    // ──────────────────────────────────────────
+    function initImageScroller() {
+        const scroller          = document.getElementById('imageScroller');
+        const scrollLeftBtn     = document.getElementById('scrollLeft');
+        const scrollRightBtn    = document.getElementById('scrollRight');
+        const indicatorsWrapper = document.getElementById('scrollIndicators');
+        if (!scroller || !scrollLeftBtn || !scrollRightBtn || !indicatorsWrapper) {
+            console.warn('Image scroller: required elements not found.');
+            return;
+        }
+
+        const SCROLL_AMT = 370;   // one item width + gap
+        let isDragging   = false;
+        let startX       = 0;
+        let savedScrollL = 0;
+
+        // ── Indicators ──
+        function buildIndicators() {
+            const items  = scroller.querySelectorAll('.scroll-item');
+            const count  = Math.ceil(items.length / 3);
+            indicatorsWrapper.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('indicator');
+                if (i === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => {
+                    scroller.scrollTo({ left: i * SCROLL_AMT * 3, behavior: 'smooth' });
+                });
+                indicatorsWrapper.appendChild(dot);
+            }
+        }
+
+        function updateIndicators() {
+            const active = Math.round(scroller.scrollLeft / (SCROLL_AMT * 3));
+            indicatorsWrapper.querySelectorAll('.indicator').forEach((dot, i) => {
+                dot.classList.toggle('active', i === active);
+            });
+        }
+
+        function updateButtons() {
+            const atStart = scroller.scrollLeft <= 0;
+            const atEnd   = scroller.scrollLeft >= scroller.scrollWidth - scroller.clientWidth - 1;
+
+            scrollLeftBtn.style.opacity      = atStart ? '0.5' : '1';
+            scrollLeftBtn.style.pointerEvents = atStart ? 'none' : 'auto';
+            scrollRightBtn.style.opacity      = atEnd   ? '0.5' : '1';
+            scrollRightBtn.style.pointerEvents = atEnd   ? 'none' : 'auto';
+        }
+
+        // ── Buttons ──
+        scrollLeftBtn.addEventListener('click',  e => { e.preventDefault(); scroller.scrollBy({ left: -SCROLL_AMT, behavior: 'smooth' }); });
+        scrollRightBtn.addEventListener('click', e => { e.preventDefault(); scroller.scrollBy({ left:  SCROLL_AMT, behavior: 'smooth' }); });
+
+        // ── Mouse-drag scroll ──
+        scroller.addEventListener('mousedown', e => {
+            isDragging = true;
+            scroller.classList.add('dragging');
+            scroller.style.cursor = 'grabbing';
+            startX       = e.pageX - scroller.offsetLeft;
+            savedScrollL = scroller.scrollLeft;
+            e.preventDefault();
+        });
+
+        function endDrag() {
+            isDragging = false;
+            scroller.classList.remove('dragging');
+            scroller.style.cursor = 'grab';
+        }
+        scroller.addEventListener('mouseleave', endDrag);
+        scroller.addEventListener('mouseup',    endDrag);
+
+        scroller.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            e.preventDefault();
+            scroller.scrollLeft = savedScrollL - ((e.pageX - scroller.offsetLeft) - startX) * 2;
+        });
+
+        // ── Touch scroll ──
+        let touchStart = 0, touchSavedL = 0;
+        scroller.addEventListener('touchstart', e => {
+            touchStart  = e.touches[0].pageX;
+            touchSavedL = scroller.scrollLeft;
+        }, { passive: true });
+        scroller.addEventListener('touchmove', e => {
+            scroller.scrollLeft = touchSavedL + (touchStart - e.touches[0].pageX) * 1.5;
+        }, { passive: true });
+
+        // ── Scroll event → update UI ──
+        scroller.addEventListener('scroll', () => { updateIndicators(); updateButtons(); });
+
+        // ── Keyboard (only when lightbox is NOT open) ──
+        document.addEventListener('keydown', e => {
+            const lb = document.getElementById('lightbox');
+            if (lb && (lb.classList.contains('active') || lb.style.display === 'block')) return;  // let lightbox handle arrows
+            if (e.key === 'ArrowLeft')  scroller.scrollBy({ left: -SCROLL_AMT, behavior: 'smooth' });
+            if (e.key === 'ArrowRight') scroller.scrollBy({ left:  SCROLL_AMT, behavior: 'smooth' });
+        });
+
+        // ── Init ──
+        buildIndicators();
+        updateButtons();
+        scroller.style.cursor = 'grab';
+        console.log('Image scroller initialized.');
+    }
+
+    // ──────────────────────────────────────────
+    // BOOT — wire everything up
+    // ──────────────────────────────────────────
+    onReady(function () {
+        initMobileMenu();
+        initMobileSubmenus();
+        initMegamenu();
+        initZonePanels();
+        initSmoothScroll();
+        initStickyHeader();
+        initScrollReveal();
+        initNewsletter();
+        initInFocusSlideshow();
+        initNewsSlider();
+        initHeroBanner();
+        initGallerySlider();
+        initLightbox();
+        initLazyLoad();
+        initGalleryStagger();
+        initNoContextMenu();
+        initAutoScroller();
+        initImageScroller();
+
+        console.log('NUJ India website loaded successfully.');
+    });
+
+})();
